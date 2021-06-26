@@ -2,13 +2,20 @@ import getusermedia from "getusermedia";
 import { useContext, useEffect, useState } from "react";
 import { Redirect, useParams } from "react-router";
 import RoomContext from "../contexts/roomContext";
-import Video from "./Video";
 import Draggable from "react-draggable";
-import Toolbar from "./Toolbar";
+import Video from "./Video/Video";
+import Toolbar from "./Toolbar/Toolbar";
 
 function Room () {
+  const {
+    peer,
+    cameraStream, setCameraStream,
+    remoteStream, setRemoteStream,
+    call, setCall,
+    sharingScreen, setSharingScreen
+  } = useContext(RoomContext);
+
   const { id: roomId } = useParams();
-  const { peer, cameraStream, setCameraStream, remoteStream, setRemoteStream } = useContext(RoomContext);
   const [isConnected, setIsConnected] = useState(false);
   const [isPeerOpen, setIsPeerOpen] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
@@ -28,6 +35,7 @@ function Room () {
             // Here is the room owner, listen for a connection and starts a video call
             peer.on('connection', conn => {
               let call = peer.call(conn.peer, stream);
+              setCall(call);
               
               call.on('stream', (remote) => {
                 setIsConnected(true);
@@ -53,7 +61,7 @@ function Room () {
             // Here is the visitor, it starts a simple data connection and listens for the call
             const conn = peer.connect(roomId);
             peer.on('call', function (call) {
-              // setCall(call);
+              setCall(call);
               call.answer(stream);
               call.on('stream', (remote) => {
                 setIsConnected(true);
@@ -80,6 +88,21 @@ function Room () {
     copyText.setSelectionRange(0, 99999); /* For mobile devices */
     document.execCommand('copy');
   }
+  
+  function handleScreenShare () {
+    if (!sharingScreen) {
+      navigator.mediaDevices.getDisplayMedia({video: true})
+        .then((stream) => {
+          setCameraStream(stream);
+          setSharingScreen(true);
+          window.__call = call;
+        }, (err) => {
+          console.log(err);
+        });
+    } else {
+      setSharingScreen(false);
+    }
+  }
 
   function handleCallEnd () {
     // manually close the peer connections
@@ -103,7 +126,7 @@ function Room () {
   ) : (
     <>
       <div className="row">
-        { peer.id === roomId ? (
+        { peer.id === roomId && (
           <>
             <div className="col s8">
               <input type="text" readOnly id="room-id" value={`${window.location.origin}/room/${roomId}`} />
@@ -112,20 +135,20 @@ function Room () {
               <button className="blue waves-effect btn" onClick={handleCopy}>Copiar Link</button>
             </div>
         </>
-        ) : null }
+        )}
 
         <div className="col s12">
-          {isConnected ? null : (
+          { !isConnected && (
             <p>Aguardando conexão...</p>
           )}
           <Video srcObject={remoteStream} autoPlay />
         </div>
 
-        {cameraStream ? (
+        {cameraStream && (
           <div className="col s12 m10 offset-m1 l8 offset-l2">
-            <Toolbar handleCallEnd={handleCallEnd} />
+            <Toolbar handleCallEnd={handleCallEnd} handleScreenShare={handleScreenShare} />
           </div>
-        ) : null}
+        )}
       </div>
       <Draggable bounds="body">
         <Video className="camera" srcObject={cameraStream} autoPlay muted />

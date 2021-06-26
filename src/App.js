@@ -1,21 +1,15 @@
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom"
-import './App.css'
-import Peer from 'peerjs';
-import RoomContext from './contexts/roomContext'
-import { useState } from "react"
-import Create from './components/Create'
-import Join from './components/Join'
-import Room from './components/Room'
-import CallEnded from "./components/CallEnded";
+import './App.css';
+import Create from './components/Create';
+import Join from './components/Join';
+import Room from './components/Room';
+import RoomProvider from './contexts/RoomProvider';
+import CallEnded from './components/CallEnded';
 
 function App() {
-  const [peer, setPeer] = useState(new Peer());
-  const [cameraStream, setCameraStream] = useState(null);
-  const [remoteStream, setRemoteStream] = useState(null);
-
   return (
-    <RoomContext.Provider value={{peer, setPeer, cameraStream, setCameraStream, remoteStream, setRemoteStream}}>
-      <div className="App container">
+    <div className="App container">
+      <RoomProvider>
         <Router>
           <Switch>
             <Route path="/create">
@@ -49,8 +43,8 @@ function App() {
             
           </Switch>
         </Router>
-      </div>
-    </RoomContext.Provider>
+      </RoomProvider>
+    </div>
   );
 }
 
