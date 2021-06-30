@@ -1,106 +1,80 @@
-import getusermedia from "getusermedia";
-import { useContext, useEffect, useState } from "react";
-import { Redirect, useParams } from "react-router";
-import RoomContext from "../contexts/roomContext";
-import Draggable from "react-draggable";
-import Video from "./Video/Video";
-import Toolbar from "./Toolbar/Toolbar";
+import { useContext, useEffect, useRef, useState } from 'react';
+import { Redirect, useParams } from 'react-router';
+import Draggable from 'react-draggable';
+import utils from '../utils/';
+import RoomContext from '../contexts/roomContext';
+import Owner from './Room/Owner';
+import Visitor from './Room/Visitor';
+import Video from './Video/Video';
+import Toolbar from './Toolbar/Toolbar';
+import Settings from './Settings/Settings';
+import SettingsProvider from '../contexts/SettingsProvider';
 
 function Room () {
   const {
     peer,
-    cameraStream, setCameraStream,
-    remoteStream, setRemoteStream,
-    call, setCall,
-    sharingScreen, setSharingScreen
+    localStream, setLocalStream,
+    screenStream, setScreenStream,
+    calls,
   } = useContext(RoomContext);
-
+  
   const { id: roomId } = useParams();
-  const [isConnected, setIsConnected] = useState(false);
-  const [isPeerOpen, setIsPeerOpen] = useState(false);
+  const [isPeerOpen, setIsPeerOpen] = useState(!!peer.id);
   const [callEnded, setCallEnded] = useState(false);
 
   useEffect(() => {
-    if (!peer.id) {
+    if (!isPeerOpen) {
       peer.on('open', () => {
         setIsPeerOpen(true);
       });
     } else {
-      getusermedia((err, stream) => {
-        if (err) console.log(err);
-        else {
-          setCameraStream(stream);
-  
-          if (peer.id === roomId) {
-            // Here is the room owner, listen for a connection and starts a video call
-            peer.on('connection', conn => {
-              let call = peer.call(conn.peer, stream);
-              setCall(call);
-              
-              call.on('stream', (remote) => {
-                setIsConnected(true);
-                setRemoteStream(remote);
-              });
-            
-              // peerjs bug prevents this from firing: https://github.com/peers/peerjs/issues/636
-              call.on('close', () => {
-                console.log("call close event");
-                setIsConnected(false);
-                setRemoteStream(null);
-              });
-  
-              // this one works
-              conn.on('close', () => {
-                console.log("conn close event");
-                setIsConnected(false);
-                setRemoteStream(null);
-              });
-            });
-  
-          } else {
-            // Here is the visitor, it starts a simple data connection and listens for the call
-            const conn = peer.connect(roomId);
-            peer.on('call', function (call) {
-              setCall(call);
-              call.answer(stream);
-              call.on('stream', (remote) => {
-                setIsConnected(true);
-                setRemoteStream(remote);
-              });
-            });
-            
-            // this one works
-            conn.on('close', () => {
-              console.log("conn close event");
-              setIsConnected(false);
-              setRemoteStream(null);
-            });
-          }
-        }
+      utils.getUserMedia().then((stream) => {
+        setLocalStream(stream);
+        window.localStream = stream;
       });
     }
 
   }, [isPeerOpen]);
 
-  function handleCopy () {
-    const copyText = document.getElementById('room-id');
-    copyText.select();
-    copyText.setSelectionRange(0, 99999); /* For mobile devices */
-    document.execCommand('copy');
+  function handleMic () {
+    if (calls.length > 0) {
+      // Since the audio sender is the same for all the calls, we just toggle it once
+      utils.toggleAudio(null, calls[0]);
+    } else {
+      utils.toggleAudio(localStream);
+    }
+  }
+
+  function handleCam () {
+    if (calls.length > 0) {
+      // Since the video sender is the same for all the calls, we just toggle it once
+      utils.toggleVideo(null, calls[0]);
+    } else {
+      utils.toggleVideo(localStream);
+    }
   }
   
   function handleScreenShare () {
-    if (!sharingScreen) {
-      navigator.mediaDevices.getDisplayMedia({video: true})
-        .then((stream) => {
-          setCameraStream(stream);
-          setSharingScreen(true);
-          window.__call = call;
-        }, (err) => {
-          console.log(err);
+    if (!screenStream) {
+      utils.getScreen().then((stream) => {
+
+        calls.forEach(call => utils.replaceVideo(stream, call) );
+
+        // Must do this here because the user can stop the sharing through browser dialog
+        const screenStreamTrack = stream.getVideoTracks()[0];
+        screenStreamTrack.addEventListener('ended', () => {
+          utils.replaceVideo(localStream, calls[0]);
+          setScreenStream(null);
         });
+
+        setScreenStream(stream);
+      }, (err) => {
+        console.log(err);
+      });
     } else {
-      setSharingScreen(false);
+      utils.replaceVideo(localStream, calls[0]);
+      utils.endMediaStream(screenStream);
+      setScreenStream(null);
     }
   }
 
@@ -112,49 +86,44 @@ function Room () {
       });
     }
     
-    const tracks = cameraStream.getTracks();
-    tracks.forEach(function(track) {
-      track.stop();
-    });
-
+    utils.endMediaStream(localStream);
     setCallEnded(true);
-    setCameraStream(null);
+    setLocalStream(null);
+    setScreenStream(null);
   }
 
   return callEnded ? (
     <Redirect push to="/call-end" />
-  ) : (
+  ) : (localStream && (
     <>
       <div className="row">
-        { peer.id === roomId && (
-          <>
-            <div className="col s8">
-              <input type="text" readOnly id="room-id" value={`${window.location.origin}/room/${roomId}`} />
-            </div>
-            <div className="col s4">
-              <button className="blue waves-effect btn" onClick={handleCopy}>Copiar Link</button>
-            </div>
-        </>
+        { peer.id === roomId ? (
+          <Owner />
+        ) : (
+          <Visitor />
         )}
 
-        <div className="col s12">
-          { !isConnected && (
-            <p>Aguardando conexão...</p>
-          )}
-          <Video srcObject={remoteStream} autoPlay />
-        </div>
-
-        {cameraStream && (
+        <SettingsProvider>
           <div className="col s12 m10 offset-m1 l8 offset-l2">
-            <Toolbar handleCallEnd={handleCallEnd} handleScreenShare={handleScreenShare} />
+            <Toolbar
+              handleMic={handleMic}
+              handleCam={handleCam}
+              handleScreenShare={handleScreenShare}
+              handleCallEnd={handleCallEnd}
+            />
+            <Settings />
           </div>
-        )}
+        </SettingsProvider>
       </div>
       <Draggable bounds="body">
-        <Video className="camera" srcObject={cameraStream} autoPlay muted />
+        {screenStream ? (
+          <Video className="local-video" srcObject={screenStream} autoPlay muted />
+        ) : (
+          <Video className="local-video" srcObject={localStream} autoPlay muted />
+        )}
       </Draggable>
-    </>      
-  )
+    </>
+  ))
 }
 
 export default Room;

@@ -2,7 +2,7 @@ video {
   max-width: 100%;
 }
 
-.camera {
+.local-video {
   position: absolute;
   bottom: 1rem;
   right: 1rem;
