@@ -1,12 +1,10 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import RoomContext from "../../contexts/roomContext";
 import utils from "../../utils";
 import SettingsContext from "../../contexts/settingsContext";
 import "./Toolbar.css";
 
 function Toolbar({ mic, cam, screen, settings }) {
-  const [micOpen, setMicOpen] = useState(true);
-  const [camOpen, setCamOpen] = useState(true);
   const {
     calls,
     screenStream,
@@ -15,7 +13,8 @@ function Toolbar({ mic, cam, screen, settings }) {
     handleScreenShare,
     handleCallEnd,
   } = useContext(RoomContext);
-  const { handleOpen } = useContext(SettingsContext);
+  const { handleOpen, micOpen, setMicOpen, camOpen, setCamOpen } =
+    useContext(SettingsContext);
 
   function toggleMic() {
     handleMic();

@@ -30,10 +30,3 @@
   width: 50vmin;
   margin-bottom: 1rem;
 }
-
-.Copy-Link {
-  position: absolute;
-  top: 1.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-}

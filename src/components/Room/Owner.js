@@ -36,7 +36,7 @@ function Owner() {
 
       // This is in case the connection ends abruptly
       conn.peerConnection.oniceconnectionstatechange = () => {
-        if (conn.peerConnection.iceConnectionState == "disconnected") {
+        if (conn.peerConnection.iceConnectionState === "disconnected") {
           endConnection(conn);
         }
       };
@@ -52,7 +52,6 @@ function Owner() {
 
   return (
     <>
-      <CopyLink />
       {calls.length > 0 ? (
         <VideoList list={calls} />
       ) : (
@@ -61,7 +60,9 @@ function Owner() {
 
       <SettingsProvider>
         <Toolbar mic cam screen settings />
-        <Settings />
+        <Settings>
+          <CopyLink />
+        </Settings>
       </SettingsProvider>
     </>
   );

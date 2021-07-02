@@ -27,7 +27,7 @@ function Visitor() {
     });
 
     conn.peerConnection.oniceconnectionstatechange = () => {
-      if (conn.peerConnection.iceConnectionState == "disconnected") {
+      if (conn.peerConnection.iceConnectionState === "disconnected") {
         setCalls([]);
       }
     };
