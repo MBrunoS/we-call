@@ -4,6 +4,10 @@
   align-items: center;
   justify-content: center;
   gap: 1.5rem;
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .Toolbar .btn-floating {

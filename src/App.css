@@ -2,8 +2,12 @@
   text-align: center;
   height: 100vh;
   max-height: 100vh;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  width: 100vw;
 }
 
 .App-logo {
@@ -25,4 +29,11 @@
   display: block;
   width: 50vmin;
   margin-bottom: 1rem;
+}
+
+.Copy-Link {
+  position: absolute;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
 }

@@ -1,16 +1,41 @@
-import React from 'react';
-import Video from './Video';
+import React, { useEffect } from "react";
+import Video from "./Video";
 
-function VideoList ({list}) {
+function VideoList({ list }) {
+  let cols = 1,
+    rows = 1;
+
+  if (list.length >= 10) {
+    cols = 5;
+    rows = Math.floor(list.length / 5);
+  } else if (list.length > 2) {
+    cols = Math.ceil(list.length / 2);
+    rows = 2;
+  } else {
+    cols = list.length;
+    rows = 1;
+  }
+
+  const container = document.querySelector(".App");
+  // The gap between videos is 0.5rem = 8px (4px each side)
+  const width = container.clientWidth / cols - 4;
+  const height = container.clientHeight / rows - 4;
+
+  useEffect(() => {
+    const videoList = document.querySelector(".Video-List");
+    videoList.style.setProperty("--cols", cols);
+    videoList.style.setProperty("--rows", rows);
+  }, [cols]);
+
   const videos = list.map((call, i) => {
-    return <Video srcObject={call.stream} key={i} autoPlay />;
+    return (
+      <div className="Video-List-item" style={{ width, height }}>
+        <Video srcObject={call.stream} key={i} autoPlay />
+      </div>
+    );
   });
 
-  return (
-    <>
-      {videos}
-    </>
-  )
+  return <section className="Video-List">{videos}</section>;
 }
 
 export default VideoList;

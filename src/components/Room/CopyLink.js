@@ -12,14 +12,16 @@ function CopyLink () {
   }
   
   return (
-    <>
-      <div className="col s8">
-        <input type="text" readOnly id="room-id" value={`${window.location.origin}/room/${roomId}`} />
+    <section className="Copy-Link container">
+      <div className="row">
+        <div className="col s8">
+          <input type="text" readOnly id="room-id" value={`${window.location.origin}/room/${roomId}`} />
+        </div>
+        <div className="col s4">
+          <button className="blue waves-effect btn" onClick={handleCopy}>Copiar Link</button>
+        </div>
       </div>
-      <div className="col s4">
-        <button className="blue waves-effect btn" onClick={handleCopy}>Copiar Link</button>
-      </div>
-    </>
+    </section>
   )
 }
 

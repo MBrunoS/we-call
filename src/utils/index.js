@@ -1,7 +1,16 @@
-import { endMediaStream, getScreen, getUserMedia, replaceVideo, toggleAudio, toggleVideo } from './MediaStream';
+import {
+  endMediaStream,
+  getScreen,
+  getUserMedia,
+  replaceVideo,
+  toggleAudio,
+  toggleVideo,
+} from "./MediaStream";
 
-function isMobile () {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+function isMobile() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
 }
 
 const utils = {
@@ -11,7 +20,7 @@ const utils = {
   replaceVideo,
   toggleAudio,
   toggleVideo,
-  isMobile
-}
+  isMobile,
+};
 
 export default utils;

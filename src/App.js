@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom'
 import './App.css';
 import Create from './components/Create';
 import Join from './components/Join';
-import Room from './components/Room';
+import Room from './components/Room/Room';
 import RoomProvider from './contexts/RoomProvider';
 import CallEnded from './components/CallEnded';
 
