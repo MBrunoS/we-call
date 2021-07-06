@@ -29,8 +29,8 @@ function VideoList({ list }) {
 
   const videos = list.map((call, i) => {
     return (
-      <div className="Video-List-item" style={{ width, height }}>
-        <Video srcObject={call.stream} key={i} autoPlay />
+      <div className="Video-List-item" key={i} style={{ width, height }}>
+        <Video srcObject={call.stream} autoPlay />
       </div>
     );
   });

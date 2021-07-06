@@ -4,7 +4,7 @@ import utils from "../../utils";
 import SettingsContext from "../../contexts/settingsContext";
 import "./Toolbar.css";
 
-function Toolbar({ mic, cam, screen, settings }) {
+function Toolbar({ mic, cam, screen }) {
   const {
     calls,
     screenStream,
@@ -13,6 +13,7 @@ function Toolbar({ mic, cam, screen, settings }) {
     handleScreenShare,
     handleCallEnd,
   } = useContext(RoomContext);
+
   const { handleOpen, micOpen, setMicOpen, camOpen, setCamOpen } =
     useContext(SettingsContext);
 
@@ -59,7 +60,7 @@ function Toolbar({ mic, cam, screen, settings }) {
         </button>
       )}
 
-      {settings && (
+      {(mic || cam) && (
         <button
           className="btn-floating btn-large waves-effect waves-light grey darken-2"
           onClick={handleOpen}

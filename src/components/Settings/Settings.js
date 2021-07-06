@@ -4,11 +4,12 @@ import SettingsContext from "../../contexts/settingsContext";
 import utils from "../../utils";
 import "./Settings.css";
 
-function Settings({ children }) {
+function Settings({ children, mic, cam }) {
   const { isVisible, setIsVisible, micOpen, camOpen } =
     useContext(SettingsContext);
   const { calls, localStream, setLocalStream } = useContext(RoomContext);
   const [devices, setDevices] = useState([]);
+  const [mirrorCam, setMirrorCam] = useState(false);
 
   useEffect(() => {
     navigator.mediaDevices.enumerateDevices().then((devices) => {
@@ -46,47 +47,75 @@ function Settings({ children }) {
     }
   }
 
+  function handleMirror() {
+    const video = document.querySelector(".local-video");
+    if (mirrorCam) {
+      video.style.transform = video.style.transform.replace("scaleX(-1)", "");
+    } else {
+      video.style.transform += "scaleX(-1)";
+    }
+    setMirrorCam(!mirrorCam);
+  }
+
   function handleClose() {
     setIsVisible(false);
   }
 
   return (
-    <section className={`Settings container ${isVisible ? "show" : ""}`}>
+    <section className={`Settings ${isVisible ? "show" : ""}`}>
       {children}
       <div className="row">
-        <div className="input-field col s12 m6">
-          <label htmlFor="audio-inputs">Entrada de áudio (microfone):</label>
-          <select
-            id="audio-inputs"
-            className="browser-default"
-            onChange={handleChange}
-          >
-            {devices
-              .filter((device) => device.kind === "audioinput")
-              .map((device, i) => (
-                <option value={device.deviceId} key={i}>
-                  {device.label}
-                </option>
-              ))}
-          </select>
-        </div>
+        {mic && (
+          <div className="input-field col s12">
+            <label htmlFor="audio-inputs">Entrada de áudio (microfone):</label>
+            <select
+              id="audio-inputs"
+              className="browser-default"
+              onChange={handleChange}
+            >
+              {devices
+                .filter((device) => device.kind === "audioinput")
+                .map((device, i) => (
+                  <option value={device.deviceId} key={i}>
+                    {device.label}
+                  </option>
+                ))}
+            </select>
+          </div>
+        )}
 
-        <div className="input-field col s12 m6">
-          <label htmlFor="video-inputs">Entrada de vídeo (câmera):</label>
-          <select
-            id="video-inputs"
-            className="browser-default"
-            onChange={handleChange}
-          >
-            {devices
-              .filter((device) => device.kind === "videoinput")
-              .map((device, i) => (
-                <option value={device.deviceId} key={i}>
-                  {device.label}
-                </option>
-              ))}
-          </select>
-        </div>
+        {cam && (
+          <>
+            <div className="input-field col s12">
+              <label htmlFor="video-inputs">Entrada de vídeo (câmera):</label>
+              <select
+                id="video-inputs"
+                className="browser-default"
+                onChange={handleChange}
+              >
+                {devices
+                  .filter((device) => device.kind === "videoinput")
+                  .map((device, i) => (
+                    <option value={device.deviceId} key={i}>
+                      {device.label}
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+            <div className="input-field col s12">
+              <label>
+                <input
+                  type="checkbox"
+                  className="filled-in"
+                  checked={mirrorCam}
+                  onChange={handleMirror}
+                />
+                <span>Espelhar vídeo</span>
+              </label>
+            </div>
+          </>
+        )}
       </div>
 
       <button

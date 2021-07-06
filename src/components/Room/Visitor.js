@@ -7,30 +7,39 @@ import Settings from "../Settings/Settings";
 import Toolbar from "../Toolbar/Toolbar";
 
 function Visitor() {
-  const { peer, localStream, calls, setCalls } = useContext(RoomContext);
+  const { peer, localStream, calls, setCalls, controls, setControls } =
+    useContext(RoomContext);
   const { id: roomId } = useParams();
 
   useEffect(() => {
-    const conn = peer.connect(roomId);
-
-    peer.on("call", function (call) {
-      call.answer(localStream);
-      call.on("stream", (remote) => {
-        call.stream = remote;
-        setCalls([call]);
+    peer.on("open", () => {
+      const conn = peer.connect(roomId);
+      conn.on("data", (data) => {
+        setControls(data);
+        if (!data.mic) {
+          localStream.getAudioTracks()[0].enabled = false;
+        }
       });
-    });
 
-    // must do this because call.on('close') doesn't fire
-    conn.on("close", () => {
-      setCalls([]);
-    });
+      peer.on("call", (call) => {
+        call.answer(localStream);
+        call.on("stream", (remote) => {
+          call.stream = remote;
+          setCalls([call]);
+        });
+      });
 
-    conn.peerConnection.oniceconnectionstatechange = () => {
-      if (conn.peerConnection.iceConnectionState === "disconnected") {
+      // must do this because call.on('close') doesn't fire
+      conn.on("close", () => {
         setCalls([]);
-      }
-    };
+      });
+
+      conn.peerConnection.oniceconnectionstatechange = () => {
+        if (conn.peerConnection.iceConnectionState === "disconnected") {
+          setCalls([]);
+        }
+      };
+    });
   }, []);
 
   return (
@@ -42,8 +51,12 @@ function Visitor() {
       )}
 
       <SettingsProvider>
-        <Toolbar mic cam screen settings />
-        <Settings />
+        <Toolbar
+          mic={controls.mic}
+          cam={controls.cam}
+          screen={controls.screen}
+        />
+        <Settings mic={controls.mic} cam={controls.cam} />
       </SettingsProvider>
     </>
   );

@@ -6,7 +6,7 @@ import SettingsProvider from "../../contexts/SettingsProvider";
 import Settings from "../Settings/Settings";
 import Toolbar from "../Toolbar/Toolbar";
 
-function Owner() {
+function Owner({ participantsControls }) {
   const { peer, localStream, calls, setCalls } = useContext(RoomContext);
 
   const localStreamRef = useRef();
@@ -17,6 +17,10 @@ function Owner() {
 
   useEffect(() => {
     peer.on("connection", (conn) => {
+      conn.on("open", () => {
+        conn.send(participantsControls);
+      });
+
       let _call = peer.call(conn.peer, localStreamRef.current);
 
       _call.on("stream", (remote) => {
@@ -31,6 +35,7 @@ function Owner() {
           setCalls([...callsRef.current, _call]);
         }
       });
+
       // must do this because call.on('close') doesn't fire
       conn.on("close", () => endConnection(conn));
 
@@ -59,8 +64,8 @@ function Owner() {
       )}
 
       <SettingsProvider>
-        <Toolbar mic cam screen settings />
-        <Settings>
+        <Toolbar mic cam screen />
+        <Settings mic cam>
           <CopyLink />
         </Settings>
       </SettingsProvider>

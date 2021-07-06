@@ -1,55 +1,70 @@
+import Peer from "peerjs";
 import { useContext, useEffect, useState } from "react";
 import { Redirect, useParams } from "react-router";
-import Draggable from "react-draggable";
 import utils from "../../utils";
 import RoomContext from "../../contexts/roomContext";
 import Owner from "./Owner";
 import Visitor from "./Visitor";
 import Video from "../Video/Video";
+import { useLocation } from "react-router-dom";
 
 function Room() {
-  const { peer, localStream, setLocalStream, screenStream, callEnded } =
-    useContext(RoomContext);
+  const {
+    peer,
+    setPeer,
+    localStream,
+    setLocalStream,
+    screenStream,
+    isCallEnded,
+  } = useContext(RoomContext);
 
+  const location = useLocation();
   const { id: roomId } = useParams();
-  const [isPeerOpen, setIsPeerOpen] = useState(!!peer.id);
+  const [participantsControls, setParticipantsControls] = useState();
 
   useEffect(() => {
-    if (!isPeerOpen) {
-      peer.on("open", () => {
-        setIsPeerOpen(true);
-      });
-    } else {
+    if (location.state) {
+      setParticipantsControls(location.state);
+    }
+
+    if (peer !== null) {
       utils.getUserMedia().then((stream) => {
         setLocalStream(stream);
       });
+    } else {
+      setPeer(new Peer());
     }
-  }, [isPeerOpen]);
+    return () => {
+      setLocalStream(null);
+    };
+  }, [peer]);
 
-  return callEnded ? (
+  return isCallEnded ? (
     <Redirect push to="/call-end" />
   ) : (
     localStream && (
       <>
-        {peer.id === roomId ? <Owner /> : <Visitor />}
+        {peer.id === roomId ? (
+          <Owner participantsControls={participantsControls} />
+        ) : (
+          <Visitor />
+        )}
 
-        <Draggable bounds="body">
-          {screenStream ? (
-            <Video
-              className="local-video"
-              srcObject={screenStream}
-              autoPlay
-              muted
-            />
-          ) : (
-            <Video
-              className="local-video"
-              srcObject={localStream}
-              autoPlay
-              muted
-            />
-          )}
-        </Draggable>
+        {screenStream ? (
+          <Video
+            className="local-video"
+            srcObject={screenStream}
+            autoPlay
+            muted
+          />
+        ) : (
+          <Video
+            className="local-video"
+            srcObject={localStream}
+            autoPlay
+            muted
+          />
+        )}
       </>
     )
   );

@@ -1,14 +1,18 @@
-import Peer from "peerjs";
 import React, { useState } from "react";
 import RoomContext from "./roomContext";
 import utils from "../utils";
 
 function RoomProvider({ children }) {
-  const [peer, setPeer] = useState(new Peer());
+  const [peer, setPeer] = useState(null);
   const [localStream, setLocalStream] = useState(null);
   const [calls, setCalls] = useState([]);
   const [screenStream, setScreenStream] = useState(null);
-  const [callEnded, setCallEnded] = useState(false);
+  const [isCallEnded, setIsCallEnded] = useState(false);
+  const [controls, setControls] = useState({
+    mic: false,
+    cam: false,
+    screen: false,
+  });
 
   function handleMic() {
     if (calls.length > 0) {
@@ -63,7 +67,7 @@ function RoomProvider({ children }) {
     }
 
     utils.endMediaStream(localStream);
-    setCallEnded(true);
+    setIsCallEnded(true);
     setLocalStream(null);
     setScreenStream(null);
   }
@@ -79,8 +83,10 @@ function RoomProvider({ children }) {
         setScreenStream,
         calls,
         setCalls,
-        callEnded,
-        setCallEnded,
+        isCallEnded,
+        setIsCallEnded,
+        controls,
+        setControls,
         handleMic,
         handleCam,
         handleScreenShare,

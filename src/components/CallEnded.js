@@ -1,11 +1,7 @@
-import React from 'react'
+import React from "react";
 
-function CallEnded () {
-  return (
-    <div>
-      Você saiu da sala.
-    </div>
-  )
+function CallEnded() {
+  return <div>Você saiu da sala.</div>;
 }
 
 export default CallEnded;
