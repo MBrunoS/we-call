@@ -1,5 +1,4 @@
-import React, { useContext } from "react";
-import { CreateRoomContext } from "../../context/CreateRoomContext";
+import React from "react";
 
 function CheckboxList({ list, values, updateValues }) {
   return list.map((el, i) => {
