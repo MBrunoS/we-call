@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import SettingsContext from "./settingsContext";
 
-function SettingsProvider({ children }) {
+export const SettingsContext = React.createContext();
+
+export function SettingsProvider({ children }) {
   const [isVisible, setIsVisible] = useState(false);
   const [micOpen, setMicOpen] = useState(true);
   const [camOpen, setCamOpen] = useState(true);
@@ -26,5 +27,3 @@ function SettingsProvider({ children }) {
     </SettingsContext.Provider>
   );
 }
-
-export default SettingsProvider;

@@ -1,18 +1,15 @@
 import React, { useState } from "react";
-import RoomContext from "./roomContext";
+import { useHistory } from "react-router-dom";
 import utils from "../utils";
 
-function RoomProvider({ children }) {
+export const RoomContext = React.createContext();
+
+export function RoomProvider({ children }) {
   const [peer, setPeer] = useState(null);
   const [localStream, setLocalStream] = useState(null);
-  const [calls, setCalls] = useState([]);
   const [screenStream, setScreenStream] = useState(null);
-  const [isCallEnded, setIsCallEnded] = useState(false);
-  const [controls, setControls] = useState({
-    mic: false,
-    cam: false,
-    screen: false,
-  });
+  const [calls, setCalls] = useState([]);
+  const history = useHistory();
 
   function handleMic() {
     if (calls.length > 0) {
@@ -67,9 +64,10 @@ function RoomProvider({ children }) {
     }
 
     utils.endMediaStream(localStream);
-    setIsCallEnded(true);
     setLocalStream(null);
     setScreenStream(null);
+
+    history.push("/call-end");
   }
 
   return (
@@ -83,10 +81,6 @@ function RoomProvider({ children }) {
         setScreenStream,
         calls,
         setCalls,
-        isCallEnded,
-        setIsCallEnded,
-        controls,
-        setControls,
         handleMic,
         handleCam,
         handleScreenShare,
@@ -97,5 +91,3 @@ function RoomProvider({ children }) {
     </RoomContext.Provider>
   );
 }
-
-export default RoomProvider;

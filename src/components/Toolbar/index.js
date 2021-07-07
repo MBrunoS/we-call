@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
-import RoomContext from "../../contexts/roomContext";
+import { RoomContext } from "../../context/RoomContext";
+import { SettingsContext } from "../../context/SettingsContext";
 import utils from "../../utils";
-import SettingsContext from "../../contexts/settingsContext";
 import "./Toolbar.css";
 
 function Toolbar({ mic, cam, screen }) {

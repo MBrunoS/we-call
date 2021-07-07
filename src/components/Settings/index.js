@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
-import RoomContext from "../../contexts/roomContext";
-import SettingsContext from "../../contexts/settingsContext";
+import { RoomContext } from "../../context/RoomContext";
+import { SettingsContext } from "../../context/SettingsContext";
 import utils from "../../utils";
 import "./Settings.css";
 
@@ -48,7 +48,7 @@ function Settings({ children, mic, cam }) {
   }
 
   function handleMirror() {
-    const video = document.querySelector(".local-video");
+    const video = document.querySelector(".local-vid");
     if (mirrorCam) {
       video.style.transform = video.style.transform.replace("scaleX(-1)", "");
     } else {

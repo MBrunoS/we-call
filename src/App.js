@@ -1,23 +1,27 @@
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import "./App.css";
-import Create from "./components/Create";
-import Join from "./components/Join";
-import Room from "./components/Room/Room";
-import RoomProvider from "./contexts/RoomProvider";
-import CallEnded from "./components/CallEnded";
+import Home from "./pages/Home/";
+import CreateRoom from "./pages/CreateRoom";
+import JoinRoom from "./pages/JoinRoom";
+import Room from "./pages/Room";
+import { CreateRoomProvider } from "./context/CreateRoomContext";
+import { RoomProvider } from "./context/RoomContext";
+import CallEnded from "./pages/CallEnded";
 
 function App() {
   return (
     <div className="App container">
-      <RoomProvider>
-        <Router>
+      <Router>
+        <RoomProvider>
           <Switch>
             <Route path="/create">
-              <Create />
+              <CreateRoomProvider>
+                <CreateRoom />
+              </CreateRoomProvider>
             </Route>
 
             <Route path="/join">
-              <Join />
+              <JoinRoom />
             </Route>
 
             <Route path="/room/:id">
@@ -29,30 +33,11 @@ function App() {
             </Route>
 
             <Route path="/">
-              <header className="App-header">
-                <img
-                  src={process.env.PUBLIC_URL + "/logo512.png"}
-                  className="App-logo"
-                  alt="WeCall Logo"
-                />
-                <h3 className="flow-text">O que deseja fazer?</h3>
-                <Link
-                  to="/create"
-                  className="blue waves-effect waves-light btn-large"
-                >
-                  Criar sala
-                </Link>
-                <Link
-                  to="/join"
-                  className="blue waves-effect waves-light btn-large"
-                >
-                  Entrar em sala
-                </Link>
-              </header>
+              <Home />
             </Route>
           </Switch>
-        </Router>
-      </RoomProvider>
+        </RoomProvider>
+      </Router>
     </div>
   );
 }

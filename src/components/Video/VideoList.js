@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import Video from "./Video";
+import Video from ".";
 
 function VideoList({ list }) {
   let cols = 1,

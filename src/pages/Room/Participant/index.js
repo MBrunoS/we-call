@@ -1,19 +1,19 @@
 import React, { useContext, useEffect } from "react";
 import { useParams } from "react-router";
-import RoomContext from "../../contexts/roomContext";
-import Video from "../Video/Video";
-import SettingsProvider from "../../contexts/SettingsProvider";
-import Settings from "../Settings/Settings";
-import Toolbar from "../Toolbar/Toolbar";
+import { RoomContext } from "../../../context/RoomContext";
+import { SettingsProvider } from "../../../context/SettingsContext";
+import Video from "../../../components/Video";
+import Settings from "../../../components/Settings";
+import Toolbar from "../../../components/Toolbar";
 
-function Visitor() {
-  const { peer, localStream, calls, setCalls, controls, setControls } =
-    useContext(RoomContext);
+function Participant({ controls, setControls }) {
+  const { peer, localStream, calls, setCalls } = useContext(RoomContext);
   const { id: roomId } = useParams();
 
   useEffect(() => {
     peer.on("open", () => {
       const conn = peer.connect(roomId);
+
       conn.on("data", (data) => {
         setControls(data);
         if (!data.mic) {
@@ -62,4 +62,4 @@ function Visitor() {
   );
 }
 
-export default Visitor;
+export default Participant;
