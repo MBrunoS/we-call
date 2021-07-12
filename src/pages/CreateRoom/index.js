@@ -5,16 +5,25 @@ import { CreateRoomContext } from "../../context/CreateRoomContext";
 import { RoomContext } from "../../context/RoomContext";
 import Form from "../../components/Form";
 import Loading from "../../components/Loading";
+import RadioList from "../../components/RadioList";
 import CheckboxList from "../../components/CheckboxList";
 
 function CreateRoom() {
-  const { roomId, setRoomId, roomControls, updateControls } =
+  const { roomId, setRoomId, roomSettings, updateType, updateControls } =
     useContext(CreateRoomContext);
-  const { setPeer } = useContext(RoomContext);
+  const { setPeer, setRoomType } = useContext(RoomContext);
   const [isLoading, setIsLoading] = useState(false);
   const history = useHistory();
 
-  const list = [
+  const typeList = [
+    {
+      prop: "semi-group",
+      text: "Semi-grupo (os participantes só podem se comunicar com o anfitrião)",
+    },
+    { prop: "group", text: "Grupo (todos podem se comunicar entre si)" },
+  ];
+
+  const controlsList = [
     { prop: "mic", text: "Microfone" },
     { prop: "cam", text: "Câmera" },
     { prop: "screen", text: "Compartilhar tela" },
@@ -25,10 +34,11 @@ function CreateRoom() {
     const p = new Peer(roomId);
 
     setIsLoading(true);
+    setRoomType(roomSettings.type);
     setPeer(p);
 
     p.on("open", (id) => {
-      history.push(`room/${id}`, roomControls);
+      history.push(`room/${id}`, roomSettings.controls);
     });
   }
 
@@ -37,10 +47,20 @@ function CreateRoom() {
   ) : (
     <Form title="Opções da Sala" onSubmit={create} submitText="Criar">
       <div className="input-field col s12">
+        <p>Tipo de sala:</p>
+        <RadioList
+          name="roomType"
+          list={typeList}
+          value={roomSettings.type}
+          updateValue={updateType}
+        />
+      </div>
+
+      <div className="input-field col s12">
         <p>Controles dos participantes:</p>
         <CheckboxList
-          list={list}
-          values={roomControls}
+          list={controlsList}
+          values={roomSettings.controls}
           updateValues={updateControls}
         />
       </div>

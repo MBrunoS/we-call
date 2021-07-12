@@ -12,43 +12,62 @@ import Video from "../../components/Video";
 import utils from "../../utils";
 
 function Room() {
-  const { peer, setPeer, localStream, setLocalStream, screenStream } =
+  const { peer, setPeer, localStream, setLocalStream, screenStream, setMsg } =
     useContext(RoomContext);
   const { id: roomId } = useParams();
   const location = useLocation();
-  const [roomControls, setRoomControls] = useState();
+  const [isPeerOpen, setIsPeerOpen] = useState(false);
+  const [roomControls, setRoomControls] = useState({
+    mic: false,
+    cam: false,
+    screen: false,
+  });
 
   useEffect(() => {
     if (location.state) {
       setRoomControls(location.state);
-    } else {
-      setRoomControls({ mic: false, cam: false, screen: false });
     }
 
     if (peer === null) {
-      setPeer(new Peer());
-    } else {
-      utils.getUserMedia().then((stream) => {
-        setLocalStream(stream);
+      const p = new Peer();
+      p.on("open", () => {
+        setIsPeerOpen(true);
+        p.on("error", (err) => {
+          setMsg("Desculpe, houve um erro");
+          console.log(err);
+        });
       });
+      setPeer(p);
+    } else if (!!peer.id) {
+      setIsPeerOpen(true);
     }
-  }, [peer]);
+
+    utils.getUserMedia().then((stream) => {
+      setLocalStream(stream);
+    });
+  }, []);
 
   return (
     <>
-      {localStream &&
-        (peer?.id === roomId ? (
-          <Owner roomControls={roomControls}>
-            <SettingsProvider>
-              <Toolbar mic cam screen />
-              <Settings mic cam>
-                <CopyLink />
-              </Settings>
-            </SettingsProvider>
-          </Owner>
-        ) : (
-          <Participant controls={roomControls} setControls={setRoomControls} />
-        ))}
+      {isPeerOpen && localStream && (
+        <>
+          {peer?.id === roomId ? (
+            <Owner roomControls={roomControls}>
+              <SettingsProvider>
+                <Toolbar mic cam screen />
+                <Settings mic cam>
+                  <CopyLink />
+                </Settings>
+              </SettingsProvider>
+            </Owner>
+          ) : (
+            <Participant
+              controls={roomControls}
+              setControls={setRoomControls}
+            />
+          )}
+        </>
+      )}
 
       {screenStream ? (
         <Video className="local-vid" srcObject={screenStream} autoPlay muted />

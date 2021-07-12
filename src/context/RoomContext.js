@@ -6,9 +6,11 @@ export const RoomContext = React.createContext();
 
 export function RoomProvider({ children }) {
   const [peer, setPeer] = useState(null);
+  const [roomType, setRoomType] = useState("");
   const [localStream, setLocalStream] = useState(null);
   const [screenStream, setScreenStream] = useState(null);
   const [calls, setCalls] = useState([]);
+  const [msg, setMsg] = useState("");
   const history = useHistory();
 
   function handleMic() {
@@ -33,12 +35,12 @@ export function RoomProvider({ children }) {
     if (!screenStream) {
       utils.getScreen().then(
         (stream) => {
-          calls.forEach((call) => utils.replaceVideo(stream, call));
+          calls.forEach((call) => utils.replaceVideo(stream, null, call));
 
           // Must do this here because the user can stop the sharing through browser dialog
           const screenStreamTrack = stream.getVideoTracks()[0];
           screenStreamTrack.addEventListener("ended", () => {
-            utils.replaceVideo(localStream, calls[0]);
+            utils.replaceVideo(localStream, null, calls[0]);
             setScreenStream(null);
           });
 
@@ -57,6 +59,7 @@ export function RoomProvider({ children }) {
 
   function handleCallEnd() {
     // manually close the peer connections
+    console.log(peer.connections);
     for (let conns in peer.connections) {
       peer.connections[conns].forEach((conn) => {
         conn.close();
@@ -75,12 +78,16 @@ export function RoomProvider({ children }) {
       value={{
         peer,
         setPeer,
+        roomType,
+        setRoomType,
         localStream,
         setLocalStream,
         screenStream,
         setScreenStream,
         calls,
         setCalls,
+        msg,
+        setMsg,
         handleMic,
         handleCam,
         handleScreenShare,

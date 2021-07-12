@@ -4,22 +4,37 @@ export const CreateRoomContext = React.createContext();
 
 export function CreateRoomProvider({ children }) {
   const [roomId, setRoomId] = useState("");
-  const [roomControls, setRoomControls] = useState({
-    mic: true,
-    cam: true,
-    screen: true,
+  const [roomSettings, setRoomSettings] = useState({
+    type: "semi-group",
+    controls: { mic: true, cam: true, screen: true },
   });
 
+  function updateType(e) {
+    setRoomSettings({
+      ...roomSettings,
+      type: e.target.value,
+    });
+  }
+
   function updateControls(e) {
-    setRoomControls({
-      ...roomControls,
-      [e.target.value]: e.target.checked,
+    setRoomSettings({
+      ...roomSettings,
+      controls: {
+        ...roomSettings.controls,
+        [e.target.value]: e.target.checked,
+      },
     });
   }
 
   return (
     <CreateRoomContext.Provider
-      value={{ roomId, setRoomId, roomControls, updateControls }}
+      value={{
+        roomId,
+        setRoomId,
+        roomSettings,
+        updateType,
+        updateControls,
+      }}
     >
       {children}
     </CreateRoomContext.Provider>

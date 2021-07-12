@@ -3,7 +3,8 @@ import { RoomContext } from "../../../context/RoomContext";
 import VideoList from "../../../components/Video/VideoList";
 
 function Owner({ roomControls, children }) {
-  const { peer, localStream, calls, setCalls } = useContext(RoomContext);
+  const { peer, roomType, localStream, calls, setCalls } =
+    useContext(RoomContext);
 
   const localStreamRef = useRef();
   localStreamRef.current = localStream;
@@ -14,7 +15,7 @@ function Owner({ roomControls, children }) {
   useEffect(() => {
     peer.on("connection", (conn) => {
       conn.on("open", () => {
-        conn.send(roomControls);
+        conn.send({ roomType, roomControls });
       });
       newConnection(conn);
     });
