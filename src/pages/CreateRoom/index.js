@@ -31,7 +31,7 @@ function CreateRoom() {
 
   function create(e) {
     e.preventDefault();
-    const p = new Peer(roomId);
+    const p = new Peer(roomId, { debug: 3 });
 
     setIsLoading(true);
     setRoomType(roomSettings.type);

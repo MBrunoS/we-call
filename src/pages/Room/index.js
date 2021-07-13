@@ -29,7 +29,7 @@ function Room() {
     }
 
     if (peer === null) {
-      const p = new Peer();
+      const p = new Peer({ debug: 3 });
       p.on("open", () => {
         setIsPeerOpen(true);
         p.on("error", (err) => {
