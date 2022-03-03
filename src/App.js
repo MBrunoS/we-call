@@ -11,7 +11,7 @@ import CallEnded from "./pages/CallEnded";
 function App() {
   return (
     <div className="App container">
-      <Router>
+      <Router basename={process.env.PUBLIC_URL}>
         <RoomProvider>
           <Switch>
             <Route path="/create">
