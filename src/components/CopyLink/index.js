@@ -15,19 +15,14 @@ function CopyLink() {
     <>
       <div className="row">
         <div className="col s12 m3">
-          <p>Link da sala:</p>
+          <p>ID da sala:</p>
         </div>
         <div className="col s9 m6">
-          <input
-            type="text"
-            readOnly
-            id="room-id"
-            value={`${window.location.origin}/room/${roomId}`}
-          />
+          <input type="text" readOnly id="room-id" value={roomId} />
         </div>
         <div className="col s3">
           <button className="blue waves-effect btn" onClick={handleCopy}>
-            Copiar Link
+            Copiar ID
           </button>
         </div>
       </div>
